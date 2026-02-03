@@ -6,37 +6,41 @@ from datetime import datetime
 import os
 
 fake = Faker()
-ds = datetime.now().strftime('%Y-%m-%d')
+ds = datetime.now().strftime("%Y-%m-%d")
 
 # Generate small data for testing
 data = []
 for _ in range(1000):  # start small
-    data.append({
-        'order_id': str(fake.uuid4()),
-        'order_timestamp': fake.date_time_this_year().isoformat(),
-        'user_id': str(fake.uuid4()),
-        'product_id': str(fake.uuid4()),
-        'quantity': fake.random_int(1, 5),
-        'unit_price': round(fake.pyfloat(2, 2, positive=True) * 100, 2),
-        'status': fake.random_element(['pending', 'shipped', 'delivered', 'cancelled']),
-        'email': fake.email(),
-        'phone': fake.phone_number(),
-        'city': fake.city(),
-        'country': fake.country_code()
-    })
+    data.append(
+        {
+            "order_id": str(fake.uuid4()),
+            "order_timestamp": fake.date_time_this_year().isoformat(),
+            "user_id": str(fake.uuid4()),
+            "product_id": str(fake.uuid4()),
+            "quantity": fake.random_int(1, 5),
+            "unit_price": round(fake.pyfloat(2, 2, positive=True) * 100, 2),
+            "status": fake.random_element(
+                ["pending", "shipped", "delivered", "cancelled"]
+            ),
+            "email": fake.email(),
+            "phone": fake.phone_number(),
+            "city": fake.city(),
+            "country": fake.country_code(),
+        }
+    )
 
 df = pd.DataFrame(data)
 
 # Save locally first
 local_filename = f"orders_{ds}.json"
-df.to_json(local_filename, orient='records', lines=True)
+df.to_json(local_filename, orient="records", lines=True)
 print(f"Saved locally: {local_filename}")
 
 # Upload to S3
-bucket_name = 'gowtham-ecom-raw'  # ← CHANGE TO YOUR BUCKET NAME
+bucket_name = "gowtham-ecom-raw"  # ← CHANGE TO YOUR BUCKET NAME
 s3_key = f"orders/dt={ds}/{local_filename}"
 
-s3 = boto3.client('s3')  # uses ~/.aws/credentials automatically
+s3 = boto3.client("s3")  # uses ~/.aws/credentials automatically
 
 try:
     s3.upload_file(local_filename, bucket_name, s3_key)
