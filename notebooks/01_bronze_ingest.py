@@ -2,10 +2,13 @@
 # DBTITLE 1,Configure S3 credentials (one-time setup)
 # Retrieve your S3 credentials from secrets
 aws_access_key = dbutils.secrets.get(scope="s3-credentials", key="aws-access-key-id")
-aws_secret_key = dbutils.secrets.get(scope="s3-credentials", key="aws-secret-access-key")
+aws_secret_key = dbutils.secrets.get(
+    scope="s3-credentials", key="aws-secret-access-key"
+)
 
 # URL encode the secret key (in case it contains special characters like /)
 import urllib.parse
+
 encoded_secret_key = urllib.parse.quote(aws_secret_key, safe="")
 
 print("✓ S3 credentials retrieved and encoded!")
@@ -30,11 +33,9 @@ bronze_path = f"s3a://{aws_access_key}:{encoded_secret_key}@gowtham-ecom-raw/del
 ds = "2026-02-03"  # Define the date partition value
 df = df.withColumn("dt", lit(ds))
 
-df.write.format("delta") \
-    .mode("append") \
-    .partitionBy("dt") \
-    .option("mergeSchema", "true") \
-    .save(bronze_path)
+df.write.format("delta").mode("append").partitionBy("dt").option(
+    "mergeSchema", "true"
+).save(bronze_path)
 
 print(f"Bronze written to: {bronze_path}")
 
@@ -46,4 +47,3 @@ spark.read.format("delta").load(bronze_path).where(f"dt = '{ds}'").show(5)
 spark.read.format("delta").load(bronze_path).where(f"dt = '{ds}'").count()
 
 # COMMAND ----------
-
