@@ -1,0 +1,12 @@
+[flake8]
+max-line-length = 120
+extend-ignore = E402,F821,E501
+exclude =
+    .git,
+    __pycache__,
+    *.pyc,
+    .venv,
+    venv
+per-file-ignores =
+    notebooks/*.py:F401,F821,E402,E501
+    dags/*.py:F401,F821
